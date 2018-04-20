@@ -25,8 +25,8 @@ type timestampStruct struct {
 	key  interface{}
 }
 
-//InitMemcache инициализация кэша
-func InitMemcache(size int) Mem {
+//InitMemCache инициализация кэша
+func InitMemCache(size int) Mem {
 	if size <= 0 {
 		return Mem{cache: make(cacheMap), end: 0, array: make([]timestampStruct, 0), head: 0, tail: 0, emptyTimestamp: timestampStruct{}}
 	}
@@ -37,7 +37,7 @@ func InitMemcache(size int) Mem {
 func (m *Mem) Write(key interface{}, value interface{}) {
 	m.Lock()
 	defer m.Unlock()
-	if m.end == 0 {
+	if len(m.array) == 0 {
 		return
 	}
 
@@ -76,7 +76,7 @@ func (m *Mem) Get(key interface{}) (value interface{}, ok bool) {
 	return
 }
 
-func (m *Mem) del(liveDuration time.Duration) {
+func (m *Mem) deleteOld(liveDuration time.Duration) {
 	m.Lock()
 	defer m.Unlock()
 
@@ -101,7 +101,7 @@ func (m *Mem) del(liveDuration time.Duration) {
 //Cleaner : сборщик мусора. timeGap делать разумно маленьким, удаление старых элементов блокирует кэш
 func (m *Mem) Cleaner(timeGap, liveDuration time.Duration) {
 	for {
-		m.del(liveDuration)
+		m.deleteOld(liveDuration)
 		time.Sleep(timeGap)
 	}
 }

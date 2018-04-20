@@ -38,10 +38,10 @@ var mem temporarycache.Mem
 func main() {
 
 	if size > 0 {
-		mem = temporarycache.InitMemcache(size)
+		mem = temporarycache.InitMemCache(size)
 		go mem.Cleaner(timeGap, liveDuration)
 	} else {
-		mem = temporarycache.InitMemcache(0)
+		mem = temporarycache.InitMemCache(0)
 	}
 
 	http.HandleFunc("/", helloHandler)
