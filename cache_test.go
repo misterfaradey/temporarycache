@@ -62,14 +62,23 @@ func TestInitCacheIncorrect(t *testing.T) {
 
 		mem.Write(1, "something")
 
-		for i := 0; i < size; i++ {
-			_, ok := mem.Get(i)
-			if ok {
-				t.Errorf("TestInitCacheIncorrect Want_ok: false, Have ok: %v, key: %v", ok, i)
-			}
+		_, ok := mem.Get(1)
+		if ok {
+			t.Errorf("TestInitCacheIncorrect Want_ok: false, Have ok: %v, key: %v", ok, 1)
 		}
 	}
 }
+
+func TestCleaner1(t *testing.T) {
+
+	go globmem.Cleaner(time.Millisecond, time.Minute)
+
+	time.Sleep(time.Second)
+	if len(globmem.cache) < size {
+		t.Errorf("TestCleaner1 Not Working.Whant:(size: %v), Have:(LenCache: %v)", size, len(globmem.cache))
+	}
+}
+
 func TestDeleteFiveMillionsValues(t *testing.T) {
 
 	globmem.deleteOld(time.Microsecond)
@@ -79,7 +88,7 @@ func TestDeleteFiveMillionsValues(t *testing.T) {
 	}
 }
 
-func TestCleaner(t *testing.T) {
+func TestCleaner2(t *testing.T) {
 
 	go globmem.Cleaner(time.Microsecond, time.Microsecond)
 	time.Sleep(time.Second)
