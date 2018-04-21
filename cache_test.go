@@ -71,7 +71,7 @@ func TestInitCacheIncorrect(t *testing.T) {
 
 func TestCleaner1(t *testing.T) {
 
-	go globmem.Cleaner(time.Millisecond, time.Minute)
+	go globmem.Cleaner(time.Millisecond, time.Hour)
 
 	time.Sleep(time.Second)
 	if len(globmem.cache) < size {
@@ -81,7 +81,7 @@ func TestCleaner1(t *testing.T) {
 
 func TestDeleteFiveMillionsValues(t *testing.T) {
 
-	globmem.deleteOld(time.Microsecond)
+	globmem.deleteOld(0)
 
 	if len(globmem.cache) > 0 {
 		t.Errorf("TestCleanCache Not Working. LenCache:%v", len(globmem.cache))
@@ -90,6 +90,6 @@ func TestDeleteFiveMillionsValues(t *testing.T) {
 
 func TestCleaner2(t *testing.T) {
 
-	go globmem.Cleaner(time.Microsecond, time.Microsecond)
+	go globmem.Cleaner(time.Microsecond, 0)
 	time.Sleep(time.Second)
 }

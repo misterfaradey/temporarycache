@@ -20,3 +20,18 @@ func BenchmarkGet(b *testing.B) {
 		_, _ = t, ok
 	}
 }
+
+func BenchmarkDeleteOld(b *testing.B) {
+	mem := InitMemCache(size)
+	value := "something"
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		mem.Write(i, value)
+		b.StartTimer()
+
+		mem.deleteOld(0)
+	}
+
+}
