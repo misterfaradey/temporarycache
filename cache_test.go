@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const size = 5000000
+const size = 10000000
 
 var (
 	correctSizesTest   = []int{1, 100}
