@@ -6,6 +6,7 @@
 examples/web_hello_cache/web_hello_cache
 debug
 *.txt
+examples/get_all_in_cache/get_all_in_cache
 
 # Test binary, build with `go test -c`
 *.test

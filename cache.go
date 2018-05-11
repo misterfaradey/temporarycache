@@ -25,7 +25,7 @@ type timestampStruct struct {
 	key  interface{}
 }
 
-//InitMemCache инициализация кэша
+//InitMemCache инициализация кэша. head- последний положенный элемент. tail- самый старый элемент
 func InitMemCache(size int) Mem {
 	if size <= 0 {
 		return Mem{cache: make(cacheMap), end: 0, array: make([]timestampStruct, 0), head: 0, tail: 0, emptyTimestamp: timestampStruct{}}
@@ -42,8 +42,10 @@ func (m *Mem) Write(key interface{}, value interface{}) {
 	}
 
 	//предотвращает повторную перезапись теми же данными
-	if _, ok := m.cache[key]; ok {
-		return
+	if val, ok := m.cache[key]; ok {
+		if val == value {
+			return
+		}
 	}
 
 	//перезапись самого старого элемента в кэше
@@ -74,6 +76,61 @@ func (m *Mem) Get(key interface{}) (value interface{}, ok bool) {
 
 	value, ok = m.cache[key]
 	return
+}
+
+//GetAll получить все элементы из кэша. Если ok, то элементы в кэше есть
+func (m *Mem) GetAll() (mas []interface{}, ok bool) {
+	m.RLock()
+	defer m.RUnlock()
+
+	switch {
+
+	case m.head == m.tail:
+
+		if m.array[m.head] != m.emptyTimestamp {
+			mas = make([]interface{}, len(m.array))
+
+			j := 0
+			for _, i := range m.array[m.tail:] {
+				value, _ := m.Get(i.key)
+				mas[j] = value
+				j++
+			}
+			for _, i := range m.array[:m.head] {
+				value, _ := m.Get(i.key)
+				mas[j] = value
+				j++
+			}
+
+		} else {
+			return nil, false
+		}
+
+	case m.head > m.tail:
+
+		mas = make([]interface{}, m.head-m.tail)
+		for j, i := range m.array[m.tail:m.head] {
+			value, _ := m.Get(i.key)
+			mas[j] = value
+		}
+
+	default:
+
+		mas = make([]interface{}, m.tail-m.end+m.head)
+		j := 0
+		for _, i := range m.array[m.tail:] {
+			value, _ := m.Get(i.key)
+			mas[j] = value
+			j++
+		}
+		for _, i := range m.array[:m.head] {
+			value, _ := m.Get(i.key)
+			mas[j] = value
+			j++
+		}
+	}
+
+	return mas, true
 }
 
 func (m *Mem) deleteOld(liveDuration time.Duration) {
