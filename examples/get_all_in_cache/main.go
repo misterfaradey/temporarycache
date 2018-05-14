@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/misterfaradey/temporarycache"
@@ -38,13 +39,13 @@ func main() {
 	mem.Write(13, "13")
 	mem.Write(14, "14")
 
-	out, ok := mem.GetAll()
-	if !ok {
-		fmt.Println("no elements")
-		return
+	bb := bytes.Buffer{}
+	mas, ok := mem.GetAll()
+	if ok {
+		for _, i := range mas {
+			bb.Write(i.([]byte))
+		}
 	}
 
-	for _, i := range out {
-		fmt.Println(i.(string))
-	}
+	fmt.Println(bb.String())
 }

@@ -92,12 +92,12 @@ func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 
 			j := 0
 			for _, i := range m.array[m.tail:] {
-				value, _ := m.Get(i.key)
+				value, _ := m.cache[i.key]
 				mas[j] = value
 				j++
 			}
 			for _, i := range m.array[:m.head] {
-				value, _ := m.Get(i.key)
+				value, _ := m.cache[i.key]
 				mas[j] = value
 				j++
 			}
@@ -110,7 +110,7 @@ func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 
 		mas = make([]interface{}, m.head-m.tail)
 		for j, i := range m.array[m.tail:m.head] {
-			value, _ := m.Get(i.key)
+			value, _ := m.cache[i.key]
 			mas[j] = value
 		}
 
@@ -119,12 +119,12 @@ func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 		mas = make([]interface{}, m.tail-m.end+m.head)
 		j := 0
 		for _, i := range m.array[m.tail:] {
-			value, _ := m.Get(i.key)
+			value, _ := m.cache[i.key]
 			mas[j] = value
 			j++
 		}
 		for _, i := range m.array[:m.head] {
-			value, _ := m.Get(i.key)
+			value, _ := m.cache[i.key]
 			mas[j] = value
 			j++
 		}
