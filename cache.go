@@ -25,7 +25,7 @@ type timestampStruct struct {
 	key  interface{}
 }
 
-//InitMemCache инициализация кэша. head- последний положенный элемент. tail- самый старый элемент
+//InitMemCache инициализация кэша. head- указывает на ячейку, в которую будет положен следующий элемент. tail- самый старый элемент
 func InitMemCache(size int) Mem {
 	if size <= 0 {
 		return Mem{cache: make(cacheMap), end: 0, array: make([]timestampStruct, 0), head: 0, tail: 0, emptyTimestamp: timestampStruct{}}
