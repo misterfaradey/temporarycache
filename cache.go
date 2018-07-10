@@ -35,20 +35,20 @@ func InitMemCache(size int) Mem {
 
 //Write записать элемент
 func (m *Mem) Write(key interface{}, value interface{}) {
-	m.Lock()
-	defer m.Unlock()
 	if len(m.array) == 0 {
 		return
 	}
 
 	//предотвращает повторную перезапись теми же данными
-	if val, ok := m.cache[key]; ok {
-		if val == value {
-			return
-		}
+	m.RLock()
+	val, ok := m.cache[key]
+	m.RUnlock()
+	if ok && val == value {
+		return
 	}
 
 	//перезапись самого старого элемента в кэше
+	m.Lock()
 	if m.tail == m.head {
 		if m.array[m.tail] != m.emptyTimestamp {
 			delete(m.cache, m.array[m.tail].key)
@@ -64,24 +64,24 @@ func (m *Mem) Write(key interface{}, value interface{}) {
 
 	if m.head == m.end {
 		m.head = 0
+		m.Unlock()
 		return
 	}
 	m.head++
+	m.Unlock()
 }
 
 //Get получить элемент
 func (m *Mem) Get(key interface{}) (value interface{}, ok bool) {
 	m.RLock()
-	defer m.RUnlock()
-
 	value, ok = m.cache[key]
+	m.RUnlock()
 	return
 }
 
 //GetAll получить все элементы из кэша. Если ok, то элементы в кэше есть
 func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 	m.RLock()
-	defer m.RUnlock()
 
 	switch {
 
@@ -103,6 +103,7 @@ func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 			}
 
 		} else {
+			m.RUnlock()
 			return nil, false
 		}
 
@@ -129,20 +130,22 @@ func (m *Mem) GetAll() (mas []interface{}, ok bool) {
 			j++
 		}
 	}
+	m.RUnlock()
 
 	return mas, true
 }
 
 func (m *Mem) deleteOld(liveDuration time.Duration) {
 	m.Lock()
-	defer m.Unlock()
 
 	for {
 		ar := m.array[m.tail]
 		if ar == m.emptyTimestamp {
+			m.Unlock()
 			return
 		}
 		if time.Now().Sub(ar.time) < liveDuration {
+			m.Unlock()
 			return
 		}
 		delete(m.cache, ar.key)

@@ -44,10 +44,7 @@ func TestInitCacheCorrect(t *testing.T) {
 			if m.(string) != value+strconv.Itoa(i) {
 				t.Errorf("TestInitCacheCorrect Want: %s, Have: %v, key: %v", value+strconv.Itoa(i), m, i)
 			}
-			value := "something+1"
-			mem.Write(i+1, value)
 		}
-
 	}
 
 }
